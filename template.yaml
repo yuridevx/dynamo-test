@@ -10,6 +10,8 @@ Resources:
     Properties:
       CodeUri: ./catalog
       Handler: compiled/handler.handler
+      Tracing: Active
+      Timeout: 20
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref CatalogTable
