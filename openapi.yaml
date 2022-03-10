@@ -1,0 +1,191 @@
+openapi: 3.0.0
+info:
+  version: v1.0.0
+  title: TV Shows
+tags:
+  - name: TVCatalogue
+security:
+  - ApiKeyAuth: []
+paths:
+  /catalogue:
+    post:
+      tags:
+        - TVCatalogue
+      summary: Bulk load TV shows
+      operationId: upsertTvCatalogue
+      description: >-
+        Create or update multiple tv shows
+
+        This method is mainly used for bulk loading of data.
+      parameters:
+        - name: Correlation-ID
+          description: |-
+            Optional identifier providing a mechanism for a client application to correlate asynchronous
+            API calls, e.g.
+
+            correlation-id: d7842738-f6da-4e8a-879a-d83203ff9650
+
+            Correlation-ID format is not constrained, and may be any string meaningful to the client
+            application. During response processing, the API Gateway will append the correlation
+            identifier to the response headers (if not already propagated back by the provider).
+
+            The Correlation-ID is logged and propagated to the backend provider.
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 64
+            externalDocs:
+              description: 'See: Universally Unique IDentifier (UUID). (RFC-4122).'
+              url: 'https://www.ietf.org/rfc/rfc4122.txt'
+          example: a0f0b6a6-df37-11e9-8a34-2a2ae2dbcce4
+        - name: Transaction-ID
+          description: |-
+            Client application supplied UUID, identifying a transaction or event chain through
+            potentially a number of API calls and events e.g.
+
+            transaction-id: d7842738-f6da-4e8a-879a-d83203ff9650
+
+            systems or platforms that process service requests via REST are required
+            to provide the Transaction-ID HTTP header to enterprise logging
+            platforms, and to propagate the header to downstream services.
+
+            Notes
+            - Where an API request does not include W3C Trace-Context 'traceparent' and 'tracestate'
+              headers, a 'Transaction-ID' header SHOULD be provided instead.
+            - Where W3C Trace-Context headers are not supplied (e.g. external clients, COTS
+              applications), or where cloud-native trace headers are supplied instead (e.g. AWS x-ray),
+              the API Gateway will generate the required headers from transaction or request Ids.
+            - Due to this, when trace headers other than the W3C Trace-Context headers are supplied,
+              they should also be populated into the Transaction-ID header to support end-to-end
+              traceability.
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 64
+            externalDocs:
+              description: 'See: Universally Unique IDentifier (UUID). (RFC-4122).'
+              url: 'https://www.ietf.org/rfc/rfc4122.txt'
+          example: d7842738-f6da-4e8a-879a-d83203ff9650
+        - name: Request-ID
+          description: |-
+            SHOULD be provided and logged by consuming systems to correlate requests in logging systems,
+            however will be created by the API Gateway if not provided by the API consumer.
+
+            UUID uniquely identifying the API call, e.g.
+
+            request-id: c5ff1e52-1c48-4be6-9b53-c966886e539f
+
+          in: header
+          required: false
+          schema:
+            type: string
+            maxLength: 64
+            externalDocs:
+              description: 'See: Universally Unique IDentifier (UUID). (RFC-4122).'
+              url: 'https://www.ietf.org/rfc/rfc4122.txt'
+          example: c5ff1e52-1c48-4be6-9b53-c966886e539f
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TVShow'
+      responses:
+        '204':
+          description: OK - no response as multiple resources may be created
+        '400':
+          $ref: '#/components/responses/BadRequestErrorResponse'
+        '401':
+          $ref: '#/components/responses/AuthorizationErrorResponse'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+  responses:
+    # ---------------------------------------------------------------------------------------------
+    # 400 - Client Error - Bad Request
+    # ---------------------------------------------------------------------------------------------
+    BadRequestErrorResponse:
+      description: |-
+        The request could not be understood by the server due to malformed syntax.
+
+        The client **SHOULD NOT** repeat the request without modifications.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationError'
+    # ---------------------------------------------------------------------------------------------
+    # 401 Client Error - Unauthorized
+    #
+    # ---------------------------------------------------------------------------------------------
+    AuthorizationErrorResponse:
+      description: |-
+        Client Error - Unauthorized.
+
+        Missing or invalid `X-API-KEY` header.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApplicationError'
+  schemas:
+    ApplicationError:
+      description: An object containing the details of a particular error.
+      type: object
+      properties:
+        id:
+          description: |-
+            A unique identifier for the error occurrence, to provide traceability in application logs.
+          type: string
+        code:
+          description: |-
+            A provider-specific or enterprise defined error code. Codes must be in uppercase.
+          type: string
+          example: API0003
+        detail:
+          description: |-
+            A provider-specific or enterprise defined error message.
+          type: string
+        helpUrl:
+          description: A URL which leads to further details about the error (e.g. A help page).
+          type: string
+        helpText:
+          description: Help text which can provide further assistance on the error.
+          type: string
+      required:
+        - code
+        - detail
+      example:
+        id: 123-4
+        code: API0003
+        message: title is not valid.
+    TVShow:
+      type: object
+      required:
+        - slug
+        - title
+        - tvChannel
+      properties:
+        slug:
+          type: string
+        country:
+          type: string
+        description:
+          type: string
+        drm:
+          type: boolean
+        genre:
+          type: string
+        language:
+          type: string
+        primaryColour:
+          type: string
+        title:
+          type: string
+        tvChannel:
+          type: string

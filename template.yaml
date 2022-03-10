@@ -1,0 +1,14 @@
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs14.x
+    Architectures:
+      - arm64
+Resources:
+  CatalogBatchSave:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./catalog
+      Handler: compiled/handler.handler
+    Metadata:
+      BuildMethod: makefile
