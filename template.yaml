@@ -25,13 +25,11 @@ Resources:
     Metadata:
       BuildMethod: makefile
 
+
   CatalogTable:
-    Type: AWS::DynamoDB::Table
+    Type: AWS::Serverless::SimpleTable
     Properties:
-      AttributeDefinitions:
-        - AttributeName: slug
-          AttributeType: S
-      KeySchema:
-        - AttributeName: slug
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
+      TableName: TVCatalog
+      PrimaryKey:
+        Type: String
+        Name: "slug"
