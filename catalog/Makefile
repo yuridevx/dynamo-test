@@ -1,6 +1,7 @@
 .PHONY: build-CatalogBatchSave
 
 build-CatalogBatchSave:
+	yarn install
 	yarn compile
 	cp -r ./src $(ARTIFACTS_DIR)
 	cp package.json $(ARTIFACTS_DIR)
