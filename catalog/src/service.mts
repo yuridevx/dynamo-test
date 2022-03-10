@@ -18,8 +18,8 @@ export async function batchWrite(shows: TVShow[]) {
     })
     try {
         await client.send(command)
-    } catch (e) {
+    } catch (e: any) {
         console.error(e)
-        throw new RuntimeError("DATABASE_ERROR")
+        throw new RuntimeError("DATABASE_ERROR", e.message)
     }
 }
