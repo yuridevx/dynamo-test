@@ -1,4 +1,5 @@
 import {RuntimeError} from "./errors.mjs";
+import joi from 'joi'
 
 export interface TVShow {
     slug: string
@@ -11,8 +12,6 @@ export interface TVShow {
     language?: string
     primaryColour?: string
 }
-
-const joi = require("joi")
 
 const schema = joi.object({
     slug: joi.string().required(),
