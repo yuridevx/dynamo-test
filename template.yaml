@@ -28,7 +28,6 @@ Resources:
   CatalogDatabase:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: CatalogTable
       AttributeDefinitions:
         - AttributeName: slug
           AttributeType: S
