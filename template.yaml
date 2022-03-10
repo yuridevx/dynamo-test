@@ -21,11 +21,11 @@ Resources:
             Method: POST
       Environment:
         Variables:
-          TABLE_NAME: !Ref CatalogDatabase
+          TABLE_NAME: !Ref CatalogTable
     Metadata:
       BuildMethod: makefile
 
-  CatalogDatabase:
+  CatalogTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
