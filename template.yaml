@@ -10,5 +10,11 @@ Resources:
     Properties:
       CodeUri: ./catalog
       Handler: compiled/handler.handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /catalog
+            Method: POST
     Metadata:
       BuildMethod: makefile
