@@ -32,11 +32,7 @@ Resources:
       AttributeDefinitions:
         - AttributeName: slug
           AttributeType: S
-        - AttributeName: title
-          AttributeType: S
       KeySchema:
         - AttributeName: slug
           KeyType: HASH
-        - AttributeName: title
-          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
