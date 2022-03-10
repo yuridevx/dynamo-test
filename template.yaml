@@ -26,8 +26,16 @@ Resources:
       BuildMethod: makefile
 
   CatalogDatabase:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Type: String
-        Name: slug
+      TableName: CatalogTable
+      AttributeDefinitions:
+        - AttributeName: slug
+          AttributeType: S
+        - AttributeName: title
+          AttributeType: S
+      KeySchema:
+        - AttributeName: slug
+          KeyType: HASH
+        - AttributeName: title
+          KeyType: RANGE
