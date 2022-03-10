@@ -22,7 +22,8 @@ const schema = joi.object({
     drm: joi.boolean(),
     genre: joi.string(),
     language: joi.string(),
-    primaryColour: joi.string()
+    primaryColour: joi.string(),
+    episodeCount: joi.number()
 })
 
 const bodySchema = joi.array().min(1).max(25).items(schema)
