@@ -39,3 +39,4 @@ Resources:
           KeyType: HASH
         - AttributeName: title
           KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
