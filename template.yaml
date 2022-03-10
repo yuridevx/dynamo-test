@@ -12,7 +12,7 @@ Resources:
       Handler: compiled/handler.handler
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref CatalogDatabase
+            TableName: !Ref CatalogTable
       Events:
         Api:
           Type: Api
