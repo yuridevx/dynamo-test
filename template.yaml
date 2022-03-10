@@ -10,11 +10,24 @@ Resources:
     Properties:
       CodeUri: ./catalog
       Handler: compiled/handler.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CatalogDatabase
       Events:
         Api:
           Type: Api
           Properties:
             Path: /catalog
             Method: POST
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref CatalogDatabase
     Metadata:
       BuildMethod: makefile
+
+  CatalogDatabase:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Type: String
+        Name: slug
