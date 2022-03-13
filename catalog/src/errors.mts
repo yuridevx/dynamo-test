@@ -1,6 +1,7 @@
 import {randomUUID} from "crypto";
 import {FastifyError, FastifyReply, FastifyRequest} from "fastify";
 import {Logger} from "winston";
+import XRay from "aws-xray-sdk";
 
 const errorCodes = {
     "INVALID_REQUEST": {
@@ -133,7 +134,8 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         }
 
         _err.setContext(request.requestId, request.transactionId)
-        if (request.segment) {
+        const segment = XRay.getSegment()
+        if (segment) {
             _err.setXRayTrace(request.segment.trace_id)
             request.segment.addError(error)
         }

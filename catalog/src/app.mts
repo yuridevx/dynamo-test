@@ -4,7 +4,7 @@ import {catalogRoutes} from "./catalog/routes.mjs";
 import {fastifyErrorHandlerFactory} from "./errors.mjs";
 import {Logger} from "winston";
 import jwt from 'fastify-jwt'
-import {setupCorrelation} from "./hooks.mjs";
+import {setupHeaders} from "./hooks.mjs";
 
 export function fastifyFactory(
     repo: CatalogRepo,
@@ -16,7 +16,7 @@ export function fastifyFactory(
         secret,
     })
     app.setErrorHandler(fastifyErrorHandlerFactory(logger))
-    setupCorrelation(app)
+    setupHeaders(app)
     catalogRoutes(app, repo)
     return app
 }
