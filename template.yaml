@@ -16,10 +16,15 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref CatalogTable
       Events:
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
         Api:
           Type: Api
           Properties:
-            Path: "*"
+            Path: /{proxy+}
             Method: ANY
       Environment:
         Variables:
