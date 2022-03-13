@@ -29,6 +29,11 @@ const repo = new CatalogRepo(
     logger
 )
 
-const app = fastifyFactory(repo, logger, process.env.SECRET_KEY)
+// In fact this should use AWS secrets, it also can handle rotations
+const secretFn = async () => {
+    return process.env.SECRET_KEY!
+}
+
+const app = fastifyFactory(repo, logger, secretFn)
 export const handler = awsLambdaFastify(app)
 await app.ready()

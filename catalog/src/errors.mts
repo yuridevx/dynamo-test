@@ -30,7 +30,7 @@ const errorCodes = {
     "UNAUTHORIZED": {
         detail: "Missing or invalid `X-API-KEY` header.",
         helpUrl: "http://jwtbuilder.jamiekurtz.com",
-        helpText: `alg = "hs256", secret = "${process.env.SECRET_KEY}`,
+        helpText: `alg = "hs256", secret = "${process.env.SECRET_KEY || 'secret'}`,
         statusCode: 401
     }
 }
@@ -82,18 +82,18 @@ export class APPError extends Error {
 }
 
 function isFastifyError(error: FastifyError | any): error is FastifyError {
-    return error?.name === "FastifyError"
+    return !!error?.code
 }
 
 export function fastifyErrorHandlerFactory(logger: Logger) {
     return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
         let _err: APPError
-        console.error(error)
         if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
         } else if (isFastifyError(error)) {
             _err = new APPError(error.code, {
-                statusCode: error.statusCode
+                statusCode: error.statusCode || 400,
+                detail: error.message
             })
         } else if (error?.name === "UnauthorizedError") {
             _err = new APPError("UNAUTHORIZED", {

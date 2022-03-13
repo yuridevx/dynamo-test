@@ -8,7 +8,7 @@ import jwt from 'fastify-jwt'
 export function fastifyFactory(
     repo: CatalogRepo,
     logger: Logger,
-    secret: string,
+    secret: () => Promise<string>,
 ) {
     const app = fastify()
     app.register(jwt, {

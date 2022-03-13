@@ -18,10 +18,12 @@ const repo = new CatalogRepo(
     logger
 )
 
+const secretFn = async () => "secret"
+
 const app = fastifyFactory(
     repo,
     logger,
-    "secret"
+    secretFn
 )
 
 await app.listen(8080)
