@@ -129,9 +129,9 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
 
         const segment = XRay.getSegment()
         if (segment) {
-            const requestId = request?.awsLambda?.context?.extendedRequestId
+            const context = request?.awsLambda?.context
             _err.setContext(
-                requestId,
+                context as any,
                 request.transactionId,
                 segment.id
             )
