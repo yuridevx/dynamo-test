@@ -13,7 +13,7 @@ export interface TVShow {
 }
 
 export const TVShowSchema = s.object()
-    .prop("slug", s.string())
+    .prop("slug", s.string().minLength(4)) // primary key should not be empty
     .prop("country", s.string())
     .prop("description", s.string())
     .prop("genre", s.string())
