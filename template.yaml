@@ -19,7 +19,7 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /catalog
+            Path: /*
             Method: POST
       Environment:
         Variables:
