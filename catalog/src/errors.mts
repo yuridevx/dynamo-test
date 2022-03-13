@@ -16,10 +16,16 @@ const errorCodes = {
         statusCode: 500
     },
     "UNKNOWN ERROR": {
-        helpUrl: "https://example.com/unknown-db-error",
+        helpUrl: "https://example.com/unknown-error",
         helpText: "unknown error",
         detail: "ping application developer",
         statusCode: 500
+    },
+    "NOT_FOUND": {
+        detail: "url not found",
+        helpUrl: "https://example.com/not-found",
+        helpText: "",
+        statusCode: 404
     }
 }
 
@@ -57,10 +63,12 @@ export class APPError extends Error {
 export function fastifyErrorHandlerFactory(logger: Logger) {
     return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
         let _err: APPError
-        if (error instanceof APPError) {
+        if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
-        } else if (error?.name === "FastifyError") { // Expected fastify errors
+        } else if (error?.name === "FastifyError") {
             _err = new APPError(error.code, error.statusCode, error.message)
+        } else if (error?.validation) {
+            _err = new APPError("INVALID_REQUEST", undefined, error.message)
         } else {
             _err = new APPError("UNKNOWN ERROR")
             logger.error("caught runtime error", error)
