@@ -39,6 +39,7 @@ type ERROR_CODE = keyof typeof errorCodes
 type ERROR_BASE = typeof errorCodes[ERROR_CODE]
 
 interface ErrorOptions {
+    cause?: any
     detail?: string
     statusCode?: number
     helpUrl?: string
@@ -47,10 +48,13 @@ interface ErrorOptions {
 
 export class APPError extends Error {
     statusCode: number
-    helpText?: string;
+    helpText?: string
     helpUrl?: string
-    id: string;
-    code: string;
+    id: string
+    code: string
+    cause?: any
+    requestId?: string;
+    transactionId?: string;
 
     constructor(code: ERROR_CODE | string, options?: ErrorOptions) {
         const base: ERROR_BASE = (errorCodes as any)[code] || {}
@@ -60,10 +64,19 @@ export class APPError extends Error {
         this.code = code || "UNKNOWN_ERROR"
         this.helpUrl = data.helpUrl
         this.helpText = data.helpText
+        this.cause = data.cause
         this.id = randomUUID()
     }
 
-    toJSON() {
+    setContext(
+        requestId: string,
+        transactionId: string
+    ) {
+        this.requestId = requestId
+        this.transactionId = transactionId
+    }
+
+    toWebJson() {
         const obj: any = {
             id: this.id,
             code: this.code,
@@ -86,29 +99,46 @@ function isFastifyError(error: FastifyError | any): error is FastifyError {
 }
 
 export function fastifyErrorHandlerFactory(logger: Logger) {
+    // fastify request is too complex to define
+    // @ts-ignore
     return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
+        let requestId = request.headers['request-id'] as string
+        let transactionId = request.headers['transaction-id'] as string
+
         let _err: APPError
         if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
         } else if (isFastifyError(error)) {
             _err = new APPError(error.code, {
                 statusCode: error.statusCode || 400,
-                detail: error.message
+                detail: error.message,
+                cause: error
             })
         } else if (error?.name === "UnauthorizedError") {
             _err = new APPError("UNAUTHORIZED", {
-                detail: error.message
+                detail: error.message,
+                cause: error
             })
         } else if (error?.validation) {
             _err = new APPError("INVALID_REQUEST", {
-                detail: error.message
+                detail: error.message,
+                cause: error
             })
         } else {
-            _err = new APPError("UNKNOWN_ERROR")
-            logger.error("caught runtime error", error)
+            _err = new APPError("UNKNOWN_ERROR", {
+                cause: error
+            })
         }
 
+        _err.setContext(requestId, transactionId)
+        if (request.segment) {
+            request.segment.addError(error)
+            request.segment.addAnnotation("request-id", request)
+            request.segment.addAnnotation("transaction-id", transactionId)
+        }
+        logger.error(_err)
+
         reply.status(_err.statusCode)
-        reply.send(_err.toJSON())
+        reply.send(_err.toWebJson())
     }
 }

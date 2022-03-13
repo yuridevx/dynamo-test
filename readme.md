@@ -7,7 +7,7 @@
 # Testing
 
 1. You can run `request/test-catalog.http`
-2. Endpoint url is first line in the file
+2. Endpoint url is the first line in the file
 
 # Solution descriptions
 

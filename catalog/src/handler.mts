@@ -3,6 +3,9 @@ import {CatalogRepo} from "./catalog/repo.mjs";
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {fastifyFactory} from "./app.mjs";
 import winston from "winston";
+import fastifyXray, {FastifyXrayOptions} from "fastify-xray";
+
+import XRay from 'aws-xray-sdk'
 
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
@@ -14,6 +17,7 @@ const logger = winston.createLogger({
 
 // Configuration can be also abstracted in some factory, but let's keep it simple for a test task
 const dynamoDB = new DynamoDBClient({})
+XRay.captureAWSv3Client(dynamoDB)
 
 if (!process.env.TABLE_NAME) {
     logger.error('TABLE_NAME env is not present')
@@ -35,5 +39,9 @@ const secretFn = async () => {
 }
 
 const app = fastifyFactory(repo, logger, secretFn)
+app.register(fastifyXray, {
+    defaultName: "catalogue",
+    AWSXRay: XRay
+} as FastifyXrayOptions)
 export const handler = awsLambdaFastify(app)
 await app.ready()
