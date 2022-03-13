@@ -19,8 +19,8 @@ Resources:
         Api:
           Type: Api
           Properties:
-            Path: /*
-            Method: POST
+            Path: *
+            Method: ANY
       Environment:
         Variables:
           TABLE_NAME: !Ref CatalogTable
