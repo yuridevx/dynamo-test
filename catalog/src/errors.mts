@@ -1,5 +1,6 @@
 import {randomUUID} from "crypto";
 import {FastifyReply, FastifyRequest} from "fastify";
+import {Logger} from "winston";
 
 const errorCodes = {
     "INVALID_REQUEST": {
@@ -56,14 +57,16 @@ export class APPError extends Error {
 }
 
 
-export function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
-    let _err: APPError
-    if (error instanceof APPError) {
-        _err = error
-    } else {
-        _err = new APPError("UNKNOWN ERROR", error.message)
-    }
+export function fastifyErrorHandlerFactory(logger: Logger) {
+    return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
+        let _err: APPError
+        if (error instanceof APPError) {
+            _err = error
+        } else {
+            _err = new APPError("UNKNOWN ERROR", error.message)
+        }
 
-    reply.status(_err.statusCode)
-    reply.send(_err.toJSON())
+        reply.status(_err.statusCode)
+        reply.send(_err.toJSON())
+    }
 }

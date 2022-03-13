@@ -3,12 +3,13 @@ import {DynamoDBClient, TransactWriteItem, TransactWriteItemsCommand} from "@aws
 
 import {TVShow} from "./data.mjs";
 import {APPError} from "../errors.mjs";
-
+import {Logger} from "winston";
 
 export class CatalogRepo {
     constructor(
         private client: DynamoDBClient,
-        private tableName: string
+        private tableName: string,
+        private logger: Logger
     ) {
     }
 
