@@ -4,6 +4,10 @@ Globals:
     Runtime: nodejs14.x
     Architectures:
       - arm64
+Parameters:
+  SecretKeyParameter:
+    Type: String
+    Default: secret
 Resources:
   CatalogBatchSave:
     Type: AWS::Serverless::Function
@@ -29,6 +33,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref CatalogTable
+          SECRET_KEY: !Ref SecretKeyParameter
     Metadata:
       BuildMethod: makefile
 
