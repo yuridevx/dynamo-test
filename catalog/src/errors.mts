@@ -29,8 +29,8 @@ const errorCodes = {
     },
     "UNAUTHORIZED": {
         detail: "Missing or invalid `X-API-KEY` header.",
-        helpUrl: "https://www.javainuse.com/jwtgenerator",
-        helpText: "Generate jwt token at url",
+        helpUrl: "http://jwtbuilder.jamiekurtz.com",
+        helpText: `alg = "hs256", secret = "${process.env.SECRET_KEY}`,
         statusCode: 401
     }
 }
