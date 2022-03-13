@@ -26,7 +26,7 @@ export class CatalogRepo {
         try {
             await this.client.send(command)
         } catch (e: any) {
-            console.error(e)
+            this.logger.error("dynamodb error", e)
             throw new APPError("DATABASE_ERROR", e.message)
         }
     }

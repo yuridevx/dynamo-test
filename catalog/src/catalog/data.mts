@@ -25,4 +25,4 @@ export const TVShowSchema = s.object()
     .additionalProperties(true) // Explicitly allowing them to fit example request
     .required(["title", "slug", "tvChannel"])
 
-export const TVShowArray = s.array().items(TVShowSchema)
+export const TVShowArray = s.array().items(TVShowSchema).maxItems(25) // DynamoDB Limit

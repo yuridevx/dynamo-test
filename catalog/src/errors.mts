@@ -63,7 +63,8 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         if (error instanceof APPError) {
             _err = error
         } else {
-            _err = new APPError("UNKNOWN ERROR", error.message)
+            _err = new APPError("UNKNOWN ERROR")
+            logger.error("caught runtime error", error)
         }
 
         reply.status(_err.statusCode)
