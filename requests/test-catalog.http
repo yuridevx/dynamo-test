@@ -11,6 +11,7 @@ Content-Type: application/json
     "genre": "Reality",
     "language": "English",
     "primaryColour": "#ff7800",
+    "slug": "show/16kidsandcounting",
     "title": "16 Kids and Counting",
     "tvChannel": "GEM"
   },
