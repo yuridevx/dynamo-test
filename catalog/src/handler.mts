@@ -6,6 +6,7 @@ import winston from "winston";
 import fastifyXray, {FastifyXrayOptions} from "fastify-xray";
 
 import XRay from 'aws-xray-sdk'
+import {setupXRay} from "./hooks.mjs";
 
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
@@ -43,5 +44,6 @@ app.register(fastifyXray, {
     defaultName: "catalogue",
     AWSXRay: XRay
 } as FastifyXrayOptions)
+setupXRay(app)
 export const handler = awsLambdaFastify(app)
 await app.ready()

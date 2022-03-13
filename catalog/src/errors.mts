@@ -55,6 +55,7 @@ export class APPError extends Error {
     cause?: any
     requestId?: string;
     transactionId?: string;
+    xrayTraceID?: string;
 
     constructor(code: ERROR_CODE | string, options?: ErrorOptions) {
         const base: ERROR_BASE = (errorCodes as any)[code] || {}
@@ -74,6 +75,10 @@ export class APPError extends Error {
     ) {
         this.requestId = requestId
         this.transactionId = transactionId
+    }
+
+    setXRayTrace(xray: string) {
+        this.xrayTraceID = xray
     }
 
     toWebJson() {
@@ -102,9 +107,6 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
     // fastify request is too complex to define
     // @ts-ignore
     return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
-        let requestId = request.headers['request-id'] as string
-        let transactionId = request.headers['transaction-id'] as string
-
         let _err: APPError
         if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
@@ -130,11 +132,10 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
             })
         }
 
-        _err.setContext(requestId, transactionId)
+        _err.setContext(request.requestId, request.transactionId)
         if (request.segment) {
+            _err.setXRayTrace(request.segment.trace_id)
             request.segment.addError(error)
-            request.segment.addAnnotation("request-id", request)
-            request.segment.addAnnotation("transaction-id", transactionId)
         }
         logger.error(_err)
 
