@@ -1,5 +1,5 @@
 import {randomUUID} from "crypto";
-import {FastifyError, FastifyReply, FastifyRequest} from "fastify";
+import {FastifyReply, FastifyRequest} from "fastify";
 import {Logger} from "winston";
 import XRay from "aws-xray-sdk";
 
@@ -56,7 +56,7 @@ export class APPError extends Error {
     cause?: any
     requestId?: string;
     transactionId?: string;
-    xrayTraceID?: string;
+    trace_id?: string;
 
     constructor(code: ERROR_CODE | string, options?: ErrorOptions) {
         const base: ERROR_BASE = (errorCodes as any)[code] || {}
@@ -78,8 +78,8 @@ export class APPError extends Error {
         this.transactionId = transactionId
     }
 
-    setXRayTrace(xray: string) {
-        this.xrayTraceID = xray
+    setTraceID(trace_id: string) {
+        this.trace_id = trace_id
     }
 
     toWebJson() {
@@ -100,10 +100,6 @@ export class APPError extends Error {
     }
 }
 
-function isFastifyError(error: FastifyError | any): error is FastifyError {
-    return !!error?.code
-}
-
 export function fastifyErrorHandlerFactory(logger: Logger) {
     // fastify request is too complex to define
     // @ts-ignore
@@ -111,7 +107,7 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         let _err: APPError
         if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
-        } else if (isFastifyError(error)) {
+        } else if (error?.code) { // Fastify error
             _err = new APPError(error.code, {
                 statusCode: error.statusCode || 400,
                 detail: error.message,
@@ -136,8 +132,10 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         _err.setContext(request.requestId, request.transactionId)
         const segment = XRay.getSegment()
         if (segment) {
-            _err.setXRayTrace(segment.id)
+            _err.setTraceID(segment.id)
             segment.addError(error)
+            segment.addAnnotation("request-id", request.requestId)
+            segment.addAnnotation("transaction-id", request.transactionId)
         }
         logger.error(_err)
 
