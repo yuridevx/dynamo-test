@@ -12,13 +12,13 @@ const errorCodes = {
     "DATABASE_ERROR": {
         helpUrl: "https://example.com/unknown-db-error",
         helpText: "unknown db error",
-        detail: "you can do nothing about it :(",
+        detail: "ping db administrator",
         statusCode: 500
     },
     "UNKNOWN ERROR": {
         helpUrl: "https://example.com/unknown-db-error",
-        helpText: "unknown db error",
-        detail: "you can do nothing about it :(",
+        helpText: "unknown error",
+        detail: "ping application developer",
         statusCode: 500
     }
 }
@@ -32,13 +32,10 @@ export class APPError extends Error {
     id: string;
     code: ERROR_CODE;
 
-    constructor(code: ERROR_CODE, message?: string) {
+    constructor(code: ERROR_CODE, _statusCode?: number, _detail?: string) {
         let {statusCode, detail, helpUrl, helpText} = {...errorCodes[code]}
-        if (message) {
-            detail = message
-        }
-        super(detail)
-        this.statusCode = statusCode
+        super(_detail || detail || "unknown error")
+        this.statusCode = _statusCode || statusCode || 500
         this.code = code
         this.helpUrl = helpUrl
         this.helpText = helpText
@@ -62,6 +59,8 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         let _err: APPError
         if (error instanceof APPError) {
             _err = error
+        } else if (error?.name === "FastifyError") { // Expected fastify errors
+            _err = new APPError(error.code, error.statusCode, error.message)
         } else {
             _err = new APPError("UNKNOWN ERROR")
             logger.error("caught runtime error", error)
