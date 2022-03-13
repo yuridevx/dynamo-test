@@ -17,6 +17,9 @@ export function catalogRoutes(
             request,
             reply
         ) {
+            await request.jwtVerify({
+                algorithms: ["HS256"]
+            })
             await repo.batchWrite(request.body as TVShow[]) // validated by fastify schema
             reply.status(204)
         }
@@ -24,7 +27,7 @@ export function catalogRoutes(
     app.route({
         url: "*",
         method: ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT', 'OPTIONS'],
-        async handler(request, reply) {
+        async handler() {
             throw new APPError("NOT_FOUND")
         }
     })

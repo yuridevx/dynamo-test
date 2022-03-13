@@ -26,6 +26,12 @@ const errorCodes = {
         helpUrl: "https://example.com/not-found",
         helpText: "",
         statusCode: 404
+    },
+    "UNAUTHORIZED": {
+        detail: "Missing or invalid `X-API-KEY` header.",
+        helpUrl: "https://www.javainuse.com/jwtgenerator",
+        helpText: "Generate jwt token at url",
+        statusCode: 401
     }
 }
 
@@ -79,15 +85,19 @@ function isFastifyError(error: FastifyError | any): error is FastifyError {
     return error?.name === "FastifyError"
 }
 
-
 export function fastifyErrorHandlerFactory(logger: Logger) {
     return function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
         let _err: APPError
+        console.error(error)
         if (error instanceof APPError) { // we are in es6 world right :)?
             _err = error
         } else if (isFastifyError(error)) {
             _err = new APPError(error.code, {
                 statusCode: error.statusCode
+            })
+        } else if (error?.name === "UnauthorizedError") {
+            _err = new APPError("UNAUTHORIZED", {
+                detail: error.message
             })
         } else if (error?.validation) {
             _err = new APPError("INVALID_REQUEST", {
