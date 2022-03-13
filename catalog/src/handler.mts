@@ -6,7 +6,7 @@ import {fastifyFactory} from "./app.mjs";
 // Configuration can be also abstracted in some factory, but let's keep it simple for a test task
 const dynamoDB = new DynamoDBClient({})
 
-if (!process.env.TABLENAME) {
+if (!process.env.TABLE_NAME) {
     throw new Error("table name not defined")
 }
 
