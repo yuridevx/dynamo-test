@@ -4,6 +4,11 @@
 2. sam build
 3. sam deploy
 
+# Testing
+
+1. You can run `request/test-catalog.http`
+2. Endpoint url is first line in the file
+
 # Solution descriptions
 
 ## Authentication
@@ -22,3 +27,5 @@ Implemented using :
 * Authentication: Bearer JWT
 * HS256
 * secret: secret
+* The correct way to implement it would be to load data from AWS secret manager, instead of ENV variable and
+  cloudformation parameter
