@@ -1,5 +1,5 @@
 import {randomUUID} from "crypto";
-import {APIGatewayProxyResult} from "aws-lambda";
+import {FastifyReply, FastifyRequest} from "fastify";
 
 const errorCodes = {
     "INVALID_REQUEST": {
@@ -24,7 +24,7 @@ const errorCodes = {
 
 type ERROR_CODE = keyof typeof errorCodes
 
-export class RuntimeError extends Error {
+export class APPError extends Error {
     statusCode: number
     helpText?: string;
     helpUrl?: string
@@ -56,17 +56,14 @@ export class RuntimeError extends Error {
 }
 
 
-export async function catchAll(fn: () => Promise<APIGatewayProxyResult>): Promise<APIGatewayProxyResult> {
-    try {
-        return await fn()
-    } catch (e: any) {
-        if (!(e instanceof RuntimeError)) {
-            e = new RuntimeError("UNKNOWN ERROR", e.message)
-        }
-        return {
-            statusCode: e.statusCode,
-            body: JSON.stringify(e.toJSON()),
-            isBase64Encoded: false
-        }
+export function fastifyErrorHandler(error: any, request: FastifyRequest, reply: FastifyReply) {
+    let _err: APPError
+    if (error instanceof APPError) {
+        _err = error
+    } else {
+        _err = new APPError("UNKNOWN ERROR", error.message)
     }
+
+    reply.status(_err.statusCode)
+    reply.send(_err.toJSON())
 }
