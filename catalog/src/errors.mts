@@ -135,7 +135,7 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
                 request.transactionId,
                 segment.id
             )
-            segment.addAnnotation("transaction-id", request.transactionId)
+            segment.addAnnotation("transactionID", request.transactionId)
             segment.addError(error)
         }
         logger.error(_err)
