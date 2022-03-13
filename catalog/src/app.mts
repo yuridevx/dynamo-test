@@ -21,11 +21,11 @@ export function fastifyFactory(
             AWSXRay: XRay
         } as FastifyXrayOptions)
     }
+    setupHeaders(app)
     app.register(jwt, {
         secret,
     })
     app.setErrorHandler(fastifyErrorHandlerFactory(logger))
-    setupHeaders(app)
     catalogRoutes(app, repo)
     return app
 }

@@ -54,9 +54,9 @@ export class APPError extends Error {
     id: string
     code: string
     cause?: any
-    requestId?: string;
     transactionId?: string;
-    trace_id?: string;
+    requestId?: string;
+    segmentId?: string;
 
     constructor(code: ERROR_CODE | string, options?: ErrorOptions) {
         const base: ERROR_BASE = (errorCodes as any)[code] || {}
@@ -72,14 +72,12 @@ export class APPError extends Error {
 
     setContext(
         requestId: string,
-        transactionId: string
+        transactionId: string,
+        segmentId: string
     ) {
-        this.requestId = requestId
         this.transactionId = transactionId
-    }
-
-    setTraceID(trace_id: string) {
-        this.trace_id = trace_id
+        this.requestId = requestId
+        this.segmentId = segmentId
     }
 
     toWebJson() {
@@ -129,13 +127,16 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
             })
         }
 
-        _err.setContext(request.requestId, request.transactionId)
         const segment = XRay.getSegment()
         if (segment) {
-            _err.setTraceID(segment.id)
-            segment.addError(error)
-            segment.addAnnotation("request-id", request.requestId)
+            const requestId = request?.awsLambda?.context?.extendedRequestId
+            _err.setContext(
+                requestId,
+                request.transactionId,
+                segment.id
+            )
             segment.addAnnotation("transaction-id", request.transactionId)
+            segment.addError(error)
         }
         logger.error(_err)
 
