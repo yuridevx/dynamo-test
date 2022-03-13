@@ -136,8 +136,8 @@ export function fastifyErrorHandlerFactory(logger: Logger) {
         _err.setContext(request.requestId, request.transactionId)
         const segment = XRay.getSegment()
         if (segment) {
-            _err.setXRayTrace(request.segment.trace_id)
-            request.segment.addError(error)
+            _err.setXRayTrace(segment.id)
+            segment.addError(error)
         }
         logger.error(_err)
 
