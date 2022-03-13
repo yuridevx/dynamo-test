@@ -23,7 +23,8 @@ const secretFn = async () => "secret"
 const app = fastifyFactory(
     repo,
     logger,
-    secretFn
+    secretFn,
+    false
 )
 
 await app.listen(8080)

@@ -3,7 +3,6 @@ import {CatalogRepo} from "./catalog/repo.mjs";
 import {DynamoDBClient} from "@aws-sdk/client-dynamodb";
 import {fastifyFactory} from "./app.mjs";
 import winston from "winston";
-import fastifyXray, {FastifyXrayOptions} from "fastify-xray";
 
 import XRay from 'aws-xray-sdk'
 
@@ -38,10 +37,6 @@ const secretFn = async () => {
     return process.env.SECRET_KEY!
 }
 
-const app = fastifyFactory(repo, logger, secretFn)
-app.register(fastifyXray, {
-    defaultName: "catalogue",
-    AWSXRay: XRay
-} as FastifyXrayOptions)
+const app = fastifyFactory(repo, logger, secretFn, true)
 export const handler = awsLambdaFastify(app)
 await app.ready()
